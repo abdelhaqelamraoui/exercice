@@ -1,4 +1,5 @@
 import express from "express";
+import axios from "axios";
 import dotenv from "dotenv";
 
 import {
@@ -8,10 +9,12 @@ import {
    insertFiliere,
    updateFiliere,
 } from "./database.js";
+import { authenticateUser } from "./auth.js";
 
 dotenv.config();
 const app = express();
 app.use(express.json());
+app.use(authenticateUser); // using the auth middleware for app requests
 
 app.listen(process.env.APP_PORT, process.env.APP_HOST, () => {
    console.log(
@@ -53,4 +56,26 @@ app.put("/filieres/:id?", async (req, res) => {
       id: req.params.id ?? req.body.id,
    });
    res.status(201).send(result);
+});
+
+// FIXME : not working for now
+app.post("/filieres/register", async (req, res) => {
+   const URL = `http://${process.env.AUTH_SERVICE_HOST}:${process.env.AUTH_SERVICE_PORT}/register`;
+   // const response = await axios.post(URL, req.body);
+   console.log(URL);
+   await axios
+      .post(URL, req.body)
+      .then((response) => {
+         res.send(response);
+      })
+      .catch((error) => {
+         res.send(error);
+      });
+});
+
+// FIXME : not working for now
+app.post("/filieres/login", async (req, res) => {
+   const URL = `http://${process.env.AUTH_SERVICE_HOST}:${process.env.AUTH_SERVICE_PORT}/login`;
+   const response = await axios.post(URL, req.body);
+   res.send(response);
 });

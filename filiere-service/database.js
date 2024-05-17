@@ -1,7 +1,5 @@
 import express from "express";
 import mongoose from "mongoose";
-// import axios from "axios";
-// import url from "url";
 import { Filiere } from "./Filiere.js"; // FIXME
 import dotenv from "dotenv";
 

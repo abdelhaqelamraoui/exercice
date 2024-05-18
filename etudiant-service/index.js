@@ -7,11 +7,12 @@ import {
    updateEtudiant,
 } from "./database.js";
 import { authenticateUser } from "./auth.js";
+import { sendMessage } from "./notification.js";
 
 dotenv.config();
 const app = express();
 app.use(express.json());
-app.use(authenticateUser); // using the auth middleware for app requests
+// app.use(authenticateUser); // using the auth middleware for app requests // TODO : bring it back
 
 app.listen(process.env.APP_PORT, process.env.APP_HOST, () => {
    console.log(
@@ -30,8 +31,13 @@ app.get("/etudiants/:id", async (req, res) => {
 });
 
 app.post("/etudiants", async (req, res) => {
-   const result = await insertEtudiant(req.body);
-   res.status(201).send(result);
+   const etudiant = await insertEtudiant(req.body);
+   if (etudiant) {
+      const message = "inscription_effectuee";
+      // TODO : incule the conditional message here for dending mail
+      await sendMessage(message);
+   }
+   res.status(201).send(etudiant);
 });
 
 app.delete("/etudiants/:id", async (req, res) => {

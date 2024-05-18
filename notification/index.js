@@ -1,6 +1,7 @@
 import express from "express";
 import amqp from "amqplib";
 import dotenv from "dotenv";
+import { ScolariteEmail, sendEmail } from "./email.js";
 
 dotenv.config();
 
@@ -35,8 +36,31 @@ async function consumeMessage() {
        */
       channel.consume(QUEUE_NAME, (msg) => {
          if (msg !== null) {
-            console.log("Received message: ", msg.content.toString());
+            const msgContent = msg.content.toString();
             channel.ack(msg);
+            // TODO : according to the msg content, send the right mails
+            switch (msgContent) {
+               case "inscription_effectuee":
+                  // TODO : send a mail to the student
+                  // const scolariteEmail = new ScolariteEmail(
+                  //    "studentsmail@gmail.com",
+                  //    "Inscription effecture",
+                  //    "Votre inscription est bien effectuee"
+                  // );
+                  // scolariteEmail.send();
+
+                  const email = {
+                     from: "scolarite@jamiaa.ma",
+                     to: "studentsmail@gmail.com",
+                     subject: "Inscription effecture",
+                     text: "Votre inscription est bien effectuee",
+                  };
+                  sendEmail(email);
+                  break;
+
+               default:
+                  break;
+            }
          }
       });
    } catch (error) {

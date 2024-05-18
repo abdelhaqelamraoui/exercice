@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 import { Etudiant } from "./Etudiant.js"; // FIXME
 import dotenv from "dotenv";
 import axios from "axios";
-import { Filiere } from "../filiere-service/Filiere.js";
+import { sendMessage } from "./notification.js";
 
 dotenv.config();
 
@@ -41,6 +41,7 @@ export async function insertEtudiant(etudiant) {
    const newEtudiant = new Etudiant({
       id: etudiant.id,
       nom: etudiant.nom,
+      email: etudiant.email,
       filiere_id: etudiant.filiere_id,
    });
 

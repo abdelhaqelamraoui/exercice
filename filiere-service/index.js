@@ -14,7 +14,7 @@ import { authenticateUser } from "./auth.js";
 dotenv.config();
 const app = express();
 app.use(express.json());
-app.use(authenticateUser); // using the auth middleware for app requests
+// app.use(authenticateUser); // using the auth middleware for app requests
 
 app.listen(process.env.APP_PORT, process.env.APP_HOST, () => {
    console.log(

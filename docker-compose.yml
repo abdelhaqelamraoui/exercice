@@ -1,0 +1,14 @@
+version: "3"
+services:
+   rabbitmq:
+      image: rabbitmq:3-management
+      container_name: rabbit-server
+      hostname: my-rabbit-server
+      ports:
+         - 9000:15672 # Management UI
+         - 5672:5672 # AMQP port
+      volumes:
+         - rabbitmq_data:/var/lib/rabbitmq
+
+volumes:
+   rabbitmq_data:

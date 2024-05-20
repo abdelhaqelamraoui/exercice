@@ -46,8 +46,8 @@ export class Email {
          from: this.from,
          to: this.to,
          subject: this.subject,
-         text: this.text,
-         // html: `<p>${this.text}</p>`, // using html instead of 'text' attribute
+         // text: this.text, // plain text format
+         html: `<p>${this.text}</p>`, // using html instead of 'text' attribute
       };
       sendEmail(email);
       return this;

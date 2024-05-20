@@ -38,28 +38,31 @@ async function consumeMessage() {
          if (msg !== null) {
             channel.ack(msg);
             // TODO : according to the msg content, send the right mails
-            console.log(msg);
+            // console.log(msg);
             const msgObj = JSON.parse(msg.content.toString());
+            const etudiant = msgObj.etudiant;
+
             switch (msgObj.content) {
                case "inscription_effectuee":
-                  // TODO : send a mail to the student
-                  // const scolariteEmail = new ScolariteEmail(
-                  //    "studentsmail@gmail.com",
-                  //    "Inscription effecture",
-                  //    "Votre inscription est bien effectuee"
-                  // );
-                  // scolariteEmail.send();
+                  const scolariteEmail = new ScolariteEmail(
+                     etudiant.email,
+                     "Inscription effectuee",
+                     `Mr/Mme <b> ${etudiant.nom}</b><br/>Votre inscription est bien effectuee.`
+                  );
 
-                  const email = {
-                     from: "scolarite@jamiaa.ma",
-                     to: msgObj.etudiant.email,
-                     subject: "Inscription effecture",
-                     text: "Votre inscription est bien effectuee",
-                  };
-                  sendEmail(email);
+                  scolariteEmail.send();
                   break;
 
                default:
+                  break;
+
+               case "filiere fermee":
+                  const scolariteEmail2 = new ScolariteEmail(
+                     etudiant.email,
+                     "Filiere fermee",
+                     `Mr/Mme <b> ${etudiant.nom}</b><br/>La filiere demandee est fermee.`
+                  );
+                  scolariteEmail2.send();
                   break;
             }
          }

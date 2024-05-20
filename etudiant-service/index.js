@@ -31,13 +31,20 @@ app.get("/etudiants/:id", async (req, res) => {
 });
 
 app.post("/etudiants", async (req, res) => {
-   const etudiant = await insertEtudiant(req.body);
-   if (etudiant) {
-      const message = { content: "inscription_effectuee", etudiant: etudiant };
+   const result = await insertEtudiant(req.body);
+   if (result.message) {
+      /**
+       * the case of returning a message indication that the major
+       * hass reached 100 studants
+       */
+      const message = { content: "filiere fermee", etudiant: req.body };
+      await sendMessage(message);
+   } else if (result) {
+      const message = { content: "inscription_effectuee", etudiant: result };
       // TODO : incule the conditional message here for dending mail
       await sendMessage(message);
    }
-   res.status(201).send(etudiant);
+   res.status(201).send(result);
 });
 
 app.delete("/etudiants/:id", async (req, res) => {

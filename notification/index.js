@@ -36,10 +36,11 @@ async function consumeMessage() {
        */
       channel.consume(QUEUE_NAME, (msg) => {
          if (msg !== null) {
-            const msgContent = msg.content.toString();
             channel.ack(msg);
             // TODO : according to the msg content, send the right mails
-            switch (msgContent) {
+            console.log(msg);
+            const msgObj = JSON.parse(msg.content.toString());
+            switch (msgObj.content) {
                case "inscription_effectuee":
                   // TODO : send a mail to the student
                   // const scolariteEmail = new ScolariteEmail(
@@ -51,7 +52,7 @@ async function consumeMessage() {
 
                   const email = {
                      from: "scolarite@jamiaa.ma",
-                     to: "studentsmail@gmail.com",
+                     to: msgObj.etudiant.email,
                      subject: "Inscription effecture",
                      text: "Votre inscription est bien effectuee",
                   };

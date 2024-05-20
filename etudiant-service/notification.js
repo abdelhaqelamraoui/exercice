@@ -9,17 +9,20 @@ console.log(NOTIF_SERVER_URL);
 const QUEUE_NAME = "notification_queue";
 
 export async function sendMessage(message) {
-   //
+   // the message now is an object instead of a string
+
    if (!message) {
       return { message: "Message is required" };
    }
+
+   const strMsg = JSON.stringify(message);
 
    try {
       const connection = await amqp.connect(NOTIF_SERVER_URL);
       const channel = await connection.createChannel();
       await channel.assertQueue(QUEUE_NAME, { durable: false });
 
-      channel.sendToQueue(QUEUE_NAME, Buffer.from(message));
+      channel.sendToQueue(QUEUE_NAME, Buffer.from(strMsg));
       console.log(`Sent message: ${message}`);
 
       await channel.close();

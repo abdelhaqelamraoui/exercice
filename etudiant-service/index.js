@@ -33,7 +33,7 @@ app.get("/etudiants/:id", async (req, res) => {
 app.post("/etudiants", async (req, res) => {
    const etudiant = await insertEtudiant(req.body);
    if (etudiant) {
-      const message = "inscription_effectuee";
+      const message = { content: "inscription_effectuee", etudiant: etudiant };
       // TODO : incule the conditional message here for dending mail
       await sendMessage(message);
    }

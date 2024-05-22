@@ -25,6 +25,7 @@ export async function insertFiliere(filiere) {
    const newFiliere = new Filiere({
       id: filiere.id,
       nom: filiere.nom,
+      nombre_etudiants: filiere.nombre_etudiants,
    });
    try {
       newFiliere.save();
@@ -55,7 +56,8 @@ export async function getFilieres() {
 
 export async function getFiliere(id) {
    try {
-      return await Filiere.find({ id: id });
+      const result = await Filiere.find({ id: id });
+      return result[0];
    } catch (error) {
       throw error;
    }
@@ -75,12 +77,3 @@ export async function updateFiliere(filiere) {
       throw error;
    }
 }
-
-// export async function getFiliereNombreEtudiants(id) {
-//    try {
-//       const filiere = await Filiere.find({ id: id });
-//       return filiere.nombre_etudiants;
-//    } catch (error) {
-//       throw error;
-//    }
-// }

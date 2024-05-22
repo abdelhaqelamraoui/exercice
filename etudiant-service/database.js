@@ -1,15 +1,11 @@
 import express from "express";
 import mongoose from "mongoose";
-import { Etudiant } from "./Etudiant.js"; // FIXME
+import { Etudiant } from "./Etudiant.js";
 import dotenv from "dotenv";
-import axios from "axios";
-import { sendMessage } from "./notification.js";
 
 dotenv.config();
 
 const DB_URI = `mongodb://${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_DATABASE}`;
-const FILIERE_HOST = process.env.APP_HOST_FILIERE_SERVICE;
-const FILIERE_PORT = process.env.APP_HOST_FILIERE_PORT;
 const app = express();
 app.use(express.json());
 
@@ -26,18 +22,6 @@ mongoose
    });
 
 export async function insertEtudiant(etudiant) {
-   const fid = etudiant.filiere_id;
-   const URL = `http://${FILIERE_HOST}:${FILIERE_PORT}/filieres/${fid}`;
-   const response = await axios.get(URL);
-   const filiere = response.data;
-   /**
-    * une filiere ne peut avoir que 100 etudiants inscrits
-    */
-   if (parseInt(filiere.nombre_etudiants) >= 100) {
-      // throw new Error("Nombre max d'étudiants est atteint !");
-      return { message: "Nombre max d'étudiants est atteint !" };
-   }
-
    const newEtudiant = new Etudiant({
       id: etudiant.id,
       nom: etudiant.nom,
@@ -47,9 +31,6 @@ export async function insertEtudiant(etudiant) {
 
    try {
       newEtudiant.save();
-      const URL = `http://${FILIERE_HOST}:${FILIERE_PORT}/filieres/${fid}`;
-      filiere.nombre_etudiants = parseInt(filiere.nombre_etudiants) + 1;
-      const response = await axios.put(URL, filiere);
       return newEtudiant;
    } catch (error) {
       throw error;
@@ -57,19 +38,8 @@ export async function insertEtudiant(etudiant) {
 }
 
 export async function deleteEtudiant(eid) {
-   const etudiant = await getEtudiant(eid);
-   const fid = etudiant.filiere_id;
-   const URL = `http://${FILIERE_HOST}:${FILIERE_PORT}/filieres/${fid}`;
-   const response = await axios.get(URL);
-   const filiere = response.data;
-
    try {
       const result = await Etudiant.deleteOne({ id: eid });
-
-      const URL = `http://${FILIERE_HOST}:${FILIERE_PORT}/filieres/${fid}`;
-      filiere.nombre_etudiants = parseInt(filiere.nombre_etudiants) - 1;
-      const response = await axios.put(URL, filiere);
-
       if (result.deletedCount == 1) {
          return { message: "etudiant bien supprimee" };
       }
@@ -88,34 +58,20 @@ export async function getEtudiants() {
 
 export async function getEtudiant(id) {
    try {
-      return await Etudiant.find({ id: id });
+      const result = await Etudiant.find({ id: id });
+      return result[0];
    } catch (error) {
       throw error;
    }
 }
 
 export async function updateEtudiant(etudiant) {
-   delete etudiant.id;
-   const fid = etudiant.filiere_id;
-   const URL = `http://${FILIERE_HOST}:${FILIERE_PORT}/filieres/${fid}`;
-   const response = await axios.get(URL);
-   const filiere = response.data;
-   /**
-    * une filiere ne peut avoir que 100 etudiants inscrits
-    */
-   if (parseInt(filiere.nombre_etudiants) >= 100) {
-      // throw new Error("Nombre max d'étudiants est atteint !");
-      return { message: "Nombre max d'étudiants est atteint !" };
-   }
    try {
       const result = await Etudiant.updateOne({ id: etudiant.id }, etudiant);
-      const URL = `http://${FILIERE_HOST}:${FILIERE_PORT}/filieres/${fid}`;
-      filiere.nombre_etudiants = parseInt(filiere.nombre_etudiants) + 1;
-      const response = await axios.put(URL, filiere);
       if (result.modifiedCount == 1) {
-         return {
-            message: "etudiant bien modifié",
-         };
+         return result;
+      } else {
+         throw Error("Erreur lors de la mise è jour");
       }
    } catch (error) {
       throw error;

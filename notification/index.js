@@ -38,31 +38,45 @@ async function consumeMessage() {
          if (msg !== null) {
             channel.ack(msg);
             // TODO : according to the msg content, send the right mails
-            // console.log(msg);
             const msgObj = JSON.parse(msg.content.toString());
-            const etudiant = msgObj.etudiant;
 
             switch (msgObj.content) {
                case "inscription_effectuee":
                   const scolariteEmail = new ScolariteEmail(
-                     etudiant.email,
+                     msgObj.etudiant.email,
                      "Inscription effectuee",
-                     `Mr/Mme <b> ${etudiant.nom}</b><br/>Votre inscription est bien effectuee.`
+                     `Mr/Mme <b> ${msgObj.etudiant.nom}</b><br/>Votre inscription est bien effectuee.`
                   );
 
                   scolariteEmail.send();
                   break;
 
-               default:
-                  break;
-
                case "filiere fermee":
                   const scolariteEmail2 = new ScolariteEmail(
-                     etudiant.email,
+                     msgObj.etudiant.email,
                      "Filiere fermee",
-                     `Mr/Mme <b> ${etudiant.nom}</b><br/>La filiere demandee est fermee.`
+                     `Mr/Mme <b> ${msgObj.etudiant.nom}</b><br/>La filiere demandee est fermee.`
                   );
                   scolariteEmail2.send();
+                  break;
+
+               case "max filiere atteint":
+                  new ScolariteEmail(
+                     "gestionnaire@jamiia.ma",
+                     "Max de filiere atteint",
+                     `La filiere <b> ${msgObj.filiere.nom}</b><br/> a atteint 100 inscris.`
+                  ).send();
+                  break;
+
+               case "filiere ouverte":
+                  new ScolariteEmail(
+                     "gestionnaire@jamiia.ma",
+                     "Ouverture filiere",
+                     `La filiere <b> ${msgObj.filiere.nom}</b><br/> est ouverte.`
+                  ).send();
+                  break;
+
+               default:
                   break;
             }
          }

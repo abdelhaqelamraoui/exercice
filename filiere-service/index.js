@@ -10,6 +10,7 @@ import {
    updateFiliere,
 } from "./database.js";
 import { authenticateUser } from "./auth.js";
+import { sendMessage } from "./notification.js";
 
 dotenv.config();
 const app = express();
@@ -28,10 +29,10 @@ app.get("/filieres", async (req, res) => {
 });
 
 app.get("/filieres/:id", async (req, res) => {
-   const filieres = await getFiliere(req.params.id);
+   const filiere = await getFiliere(req.params.id);
    // const ne = await getFiliereNombreEtudiants(req.params.id);
    // console.log(be);
-   res.send(filieres[0]);
+   res.send(filiere);
 });
 
 app.post("/filieres", async (req, res) => {
@@ -40,7 +41,8 @@ app.post("/filieres", async (req, res) => {
 });
 
 app.delete("/filieres/:id", async (req, res) => {
-   const result = await deleteFiliere(req.params.id);
+   const fid = req.params.id;
+   const result = await deleteFiliere(fid);
    res.status(201).send(result);
 });
 
@@ -51,10 +53,32 @@ app.put("/filieres/:id?", async (req, res) => {
     * Using the nullish operator, if the id is not provided in the path
     * the one set in the object will be used.
     */
+   const fid = req.params.id ?? req.body.id;
+   let filiere = await getFiliere(fid);
+   const nombre_etudiants = filiere.nombre_etudiants;
    const result = await updateFiliere({
       ...req.body,
-      id: req.params.id ?? req.body.id,
+      id: fid,
    });
+
+   filiere = await getFiliere(fid);
+   if (filiere.nombre_etudiants == 100) {
+      const message = {
+         content: "max filiere atteint",
+         filiere: filiere,
+      };
+      sendMessage(message);
+   } else if (
+      nombre_etudiants == 100 &&
+      filiere.nombre_etudiants == nombre_etudiants - 1
+   ) {
+      const message = {
+         content: "filiere ouverte",
+         filiere: filiere,
+      };
+      sendMessage(message);
+   }
+
    res.status(201).send(result);
 });
 
@@ -62,7 +86,6 @@ app.put("/filieres/:id?", async (req, res) => {
 app.post("/filieres/register", async (req, res) => {
    const URL = `http://${process.env.AUTH_SERVICE_HOST}:${process.env.AUTH_SERVICE_PORT}/register`;
    // const response = await axios.post(URL, req.body);
-   console.log(URL);
    await axios
       .post(URL, req.body)
       .then((response) => {
